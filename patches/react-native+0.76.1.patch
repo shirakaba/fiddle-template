@@ -1,0 +1,12 @@
+diff --git a/node_modules/react-native/scripts/cocoapods/autolinking.rb b/node_modules/react-native/scripts/cocoapods/autolinking.rb
+index b2e5600..a6084dd 100644
+--- a/node_modules/react-native/scripts/cocoapods/autolinking.rb
++++ b/node_modules/react-native/scripts/cocoapods/autolinking.rb
+@@ -44,6 +44,7 @@ def list_native_modules!(config_command)
+ 
+   packages.each do |package_name, package|
+     next unless package_config = package["platforms"]["ios"]
++    next unless package_name != "react-native-macos"
+ 
+     name = package["name"]
+     podspec_path = package_config["podspecPath"]
