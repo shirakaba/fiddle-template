@@ -1,24 +1,77 @@
-require_relative '../node_modules/react-native-macos/scripts/react_native_pods'
-require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
+require File.join(File.dirname(`node --print "require.resolve('expo/package.json')"`), "scripts/autolinking")
+rn_macos_path = File.dirname(`node --print "require.resolve('react-native-macos/package.json')"`)
+require File.join(rn_macos_path, "scripts/react_native_pods")
+
+base_path = Dir.pwd
+# use_react_native does not support absolute paths
+relative_rn_macos_path = Pathname.new(rn_macos_path).relative_path_from(Pathname.new(base_path)).to_s
+
+require 'json'
+podfile_properties = JSON.parse(File.read(File.join(__dir__, 'Podfile.properties.json'))) rescue {}
+
+ENV['RCT_NEW_ARCH_ENABLED'] = podfile_properties['newArchEnabled'] == 'true' ? '1' : '0'
+ENV['EX_DEV_CLIENT_NETWORK_INSPECTOR'] = podfile_properties['EX_DEV_CLIENT_NETWORK_INSPECTOR']
+# Expo doesn't support autolinking macos.
+EXPO_USE_COMMUNITY_AUTOLINKING=0
+
+platform :osx, podfile_properties['macos.deploymentTarget'] || '11.0'
+install! 'cocoapods',
+  :deterministic_uuids => false
 
 prepare_react_native_project!
 
 target 'Fiddle-macOS' do
-  platform :macos, '11.0'
-  use_native_modules!
+  use_expo_modules!
 
-  # Flags change depending on the env values.
-  flags = get_default_flags()
+  if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
+    config_command = ['node', '-e', "process.argv=['', '', 'config'];require('@react-native-community/cli').run()"];
+  else
+    config_command = [
+      'node',
+      '--no-warnings',
+      '--eval',
+      'require(require.resolve(\'expo-modules-autolinking\', { paths: [require.resolve(\'expo/package.json\')] }))(process.argv.slice(1))',
+      'react-native-config',
+      '--json',
+      '--platform',
+      # macos not supported - well, it's supported internally but not as a flag.
+      'ios'
+    ]
+  end
+
+  # node_modules/react-native/scripts/cocoapods/autolinking.rb
+  config = use_native_modules!(config_command)
+  Pod::UI.puts "current_target_definition.dependencies #{current_target_definition.dependencies}"
+
+  use_frameworks! :linkage => podfile_properties['macos.useFrameworks'].to_sym if podfile_properties['macos.useFrameworks']
+  use_frameworks! :linkage => ENV['USE_FRAMEWORKS'].to_sym if ENV['USE_FRAMEWORKS']
 
   use_react_native!(
-    :path => '../node_modules/react-native-macos',
-    :hermes_enabled => false,
+    :path => relative_rn_macos_path,
+    :hermes_enabled => podfile_properties['expo.jsEngine'] == nil || podfile_properties['expo.jsEngine'] == 'hermes',
     :fabric_enabled => ENV['RCT_NEW_ARCH_ENABLED'] == '1',
     # An absolute path to your application root.
-    :app_path => "#{Pod::Config.instance.installation_root}/.."
+    :app_path => "#{Pod::Config.instance.installation_root}/..",
+    :privacy_file_aggregation_enabled => podfile_properties['apple.privacyManifestAggregationEnabled'] != 'false',
   )
 
   post_install do |installer|
-    react_native_post_install(installer)
+    react_native_post_install(
+      installer,
+      relative_rn_macos_path,
+      :mac_catalyst_enabled => false,
+      :ccache_enabled => podfile_properties['apple.ccacheEnabled'] == 'true',
+    )
+
+    # This is necessary for Xcode 14, because it signs resource bundles by default
+    # when building for devices.
+    installer.target_installation_results.pod_target_installation_results
+      .each do |pod_name, target_installation_result|
+      target_installation_result.resource_bundle_targets.each do |resource_bundle_target|
+        resource_bundle_target.build_configurations.each do |config|
+          config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
+        end
+      end
+    end
   end
 end
