@@ -1,0 +1,12 @@
+diff --git a/node_modules/expo-modules-core/ios/Fabric/ExpoFabricViewObjC.h b/node_modules/expo-modules-core/ios/Fabric/ExpoFabricViewObjC.h
+index 9cd24c6..e60682b 100644
+--- a/node_modules/expo-modules-core/ios/Fabric/ExpoFabricViewObjC.h
++++ b/node_modules/expo-modules-core/ios/Fabric/ExpoFabricViewObjC.h
+@@ -2,7 +2,6 @@
+ 
+ #ifdef RCT_NEW_ARCH_ENABLED
+ 
+-#import <UIKit/UIKit.h>
+ #import <React/React-Core-umbrella.h>
+ 
+ #ifdef __cplusplus
