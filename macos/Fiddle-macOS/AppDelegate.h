@@ -1,6 +1,7 @@
 #import <RCTAppDelegate.h>
 #import <Cocoa/Cocoa.h>
+#import <Expo/Expo.h>
 
-@interface AppDelegate : RCTAppDelegate
+@interface AppDelegate : EXAppDelegateWrapper
 
 @end
