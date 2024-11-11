@@ -10,3 +10,91 @@ index 9cd24c6..e60682b 100644
  #import <React/React-Core-umbrella.h>
  
  #ifdef __cplusplus
+diff --git a/node_modules/expo-modules-core/ios/ReactDelegates/ExpoReactDelegate.swift b/node_modules/expo-modules-core/ios/ReactDelegates/ExpoReactDelegate.swift
+index f2c4ac4..3c39794 100644
+--- a/node_modules/expo-modules-core/ios/ReactDelegates/ExpoReactDelegate.swift
++++ b/node_modules/expo-modules-core/ios/ReactDelegates/ExpoReactDelegate.swift
+@@ -39,8 +39,16 @@ public class ExpoReactDelegate: NSObject {
+     moduleName: String,
+     initialProperties: [AnyHashable: Any]?,
+     launchOptions: [AnyHashable: Any]?
+-  ) -> UIView {
+-    return UIView()
++  ) -> NSView {
++    guard let rctAppDelegate = NSApplication.shared.delegate as? RCTAppDelegate else {
++        fatalError("The `NSApplication.shared.delegate` is not a `RCTAppDelegate` instance.")
++    }
++    return rctAppDelegate.recreateRootView(
++      withBundleURL: nil,
++      moduleName: moduleName,
++      initialProps: initialProperties,
++      launchOptions: launchOptions
++    )
+   }
+   #endif
+ 
+diff --git a/node_modules/expo-modules-core/ios/ReactDelegates/RCTAppDelegate+Recreate.h b/node_modules/expo-modules-core/ios/ReactDelegates/RCTAppDelegate+Recreate.h
+index eb34774..32e96ec 100644
+--- a/node_modules/expo-modules-core/ios/ReactDelegates/RCTAppDelegate+Recreate.h
++++ b/node_modules/expo-modules-core/ios/ReactDelegates/RCTAppDelegate+Recreate.h
+@@ -8,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
+ 
+ @interface RCTAppDelegate (Recreate)
+ 
+-#if !TARGET_OS_OSX
++#if TARGET_OS_IPHONE
+ /**
+  Recreates a root view bound with customized bundleURL, moduleName, initialProps, and launchOptions.
+  If any of these parameters is null, the method will use the original one from `RCTAppDelegate` or `RCTRootViewFactory`.
+@@ -18,6 +18,16 @@ NS_ASSUME_NONNULL_BEGIN
+                                moduleName:(nullable NSString *)moduleName
+                              initialProps:(nullable NSDictionary *)initialProps
+                             launchOptions:(nullable NSDictionary *)launchOptions;
++#elif TARGET_OS_OSX
++/**
++ Recreates a root view bound with customized bundleURL, moduleName, initialProps, and launchOptions.
++ If any of these parameters is null, the method will use the original one from `RCTAppDelegate` or `RCTRootViewFactory`.
++ This method should be used with `EXReactRootViewFactory` that to recreate a root view.
++ */
++- (NSView *)recreateRootViewWithBundleURL:(nullable NSURL *)bundleURL
++                               moduleName:(nullable NSString *)moduleName
++                             initialProps:(nullable NSDictionary *)initialProps
++                            launchOptions:(nullable NSDictionary *)launchOptions;
+ #endif
+ @end
+ 
+diff --git a/node_modules/expo-modules-core/ios/ReactDelegates/RCTAppDelegate+Recreate.mm b/node_modules/expo-modules-core/ios/ReactDelegates/RCTAppDelegate+Recreate.mm
+index dc80d24..8b99242 100644
+--- a/node_modules/expo-modules-core/ios/ReactDelegates/RCTAppDelegate+Recreate.mm
++++ b/node_modules/expo-modules-core/ios/ReactDelegates/RCTAppDelegate+Recreate.mm
+@@ -6,10 +6,17 @@
+ 
+ @implementation RCTAppDelegate (Recreate)
+ 
++#if TARGET_OS_IPHONE
+ - (UIView *)recreateRootViewWithBundleURL:(nullable NSURL *)bundleURL
+                                moduleName:(nullable NSString *)moduleName
+                              initialProps:(nullable NSDictionary *)initialProps
+                             launchOptions:(nullable NSDictionary *)launchOptions
++#elif TARGET_OS_OSX
++- (NSView *)recreateRootViewWithBundleURL:(nullable NSURL *)bundleURL
++                               moduleName:(nullable NSString *)moduleName
++                             initialProps:(nullable NSDictionary *)initialProps
++                            launchOptions:(nullable NSDictionary *)launchOptions
++#endif
+ {
+   if (self.bridgelessEnabled) {
+     id reactHost = self.rootViewFactory.reactHost;
+@@ -31,8 +38,11 @@ - (UIView *)recreateRootViewWithBundleURL:(nullable NSURL *)bundleURL
+   if (initialProps != nil) {
+     self.initialProps = initialProps;
+   }
+-
++#if TARGET_OS_IPHONE
+   UIView *rootView;
++#elif TARGET_OS_OSX
++  NSView *rootView;
++#endif
+   if ([rootViewFactory isKindOfClass:[EXReactRootViewFactory class]]) {
+     // When calling `recreateRootViewWithBundleURL:` from `EXReactRootViewFactory`,
+     // we don't want to loop the ReactDelegate again. Otherwise it will be infinite loop.
