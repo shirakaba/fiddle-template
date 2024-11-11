@@ -3,17 +3,17 @@ PODS:
   - DoubleConversion (1.1.6)
   - EXConstants (17.0.2):
     - ExpoModulesCore
-  - Expo (52.0.0-preview.18):
+  - Expo (52.0.0-preview.23):
     - ExpoModulesCore
   - ExpoAsset (11.0.0):
     - ExpoModulesCore
-  - ExpoFileSystem (18.0.0):
+  - ExpoFileSystem (18.0.1):
     - ExpoModulesCore
-  - ExpoFont (13.0.0):
+  - ExpoFont (13.0.1):
     - ExpoModulesCore
   - ExpoKeepAwake (14.0.1):
     - ExpoModulesCore
-  - ExpoModulesCore (2.0.0-preview.9):
+  - ExpoModulesCore (2.0.0-preview.10):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1796,12 +1796,12 @@ SPEC CHECKSUMS:
   boost: 1dca942403ed9342f98334bf4c3621f011aa7946
   DoubleConversion: f16ae600a246532c4020132d54af21d0ddb2a385
   EXConstants: 33cb635065c7c1fe09a0fce5c8ddde8a0a2860c4
-  Expo: 2db249097c0ba2a0e111eb4c32da6ca61d6df6f5
+  Expo: 22775a567db450535b91cace34cbb2f4fb54cf81
   ExpoAsset: 9de2f325e8c97a4c6c2bc85e507ae7f0809c91aa
-  ExpoFileSystem: d8b51caca86749a132c8ffde46be9a175e46b819
-  ExpoFont: 2fb6d98e0a5352bebcaa568d6bfbba0e0f2e0097
+  ExpoFileSystem: 60313d0b54cb8242004525f37c9b85988194ae33
+  ExpoFont: 7522d869d84ee2ee8093ee997fef5b86f85d856b
   ExpoKeepAwake: 783e68647b969b210a786047c3daa7b753dcac1f
-  ExpoModulesCore: bd0747596285533477365a0232260750b81a2c1b
+  ExpoModulesCore: f085fa8306860953744e07577f5817dd22f94445
   FBLazyVector: 7075bb12898bc3998fd60f4b7ca422496cc2cdf7
   fmt: 10c6e61f4be25dc963c36bd73fc7b1705fe975be
   glog: 08b301085f15bcbb6ff8632a8ebaf239aae04e6a
@@ -1868,4 +1868,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 43618e20cb2e6b1d0927108ed65e69e16385686f
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2
