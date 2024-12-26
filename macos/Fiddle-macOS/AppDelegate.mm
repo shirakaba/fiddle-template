@@ -2,9 +2,25 @@
 
 #import <React/RCTBundleURLProvider.h>
 
-// iOS: https://github.com/microsoft/react-native-macos/blob/0.76-stable/packages/helloworld/ios/HelloWorld/AppDelegate.mm
-// macOS: https://github.com/microsoft/react-native-macos/blob/0.76-stable/packages/react-native/local-cli/generator-macos/templates/macos/HelloWorld-macOS/AppDelegate.mm
-@implementation AppDelegate
+#if __has_include(<Fiddle/Fiddle-Swift.h>)
+// When use_frameworks! is enabled
+#import <Fiddle/Fiddle-Swift.h>
+#else
+// When use_frameworks! is disabled
+#import "Fiddle-Swift.h"
+#endif
+
+@implementation AppDelegate {
+  EXExpoAppDelegateMacOS *_expoAppDelegate;
+}
+
+- (instancetype)init
+{
+  if (self = [super init]) {
+    _expoAppDelegate = [[EXExpoAppDelegateMacOS alloc] init];
+  }
+  return self;
+}
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification
 {
@@ -13,7 +29,12 @@
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
   
-  return [super applicationDidFinishLaunching:notification];
+  // Here, we inline the contents of EXAppDelegateWrapper's method `- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions`.
+  [super applicationDidFinishLaunching:notification];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-result"
+  [_expoAppDelegate applicationDidFinishLaunching:notification];
+#pragma clang diagnostic pop
 }
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
@@ -24,7 +45,7 @@
 - (NSURL *)bundleURL
 {
 #if DEBUG
-  return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index"];
+  return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@".expo/.virtual-metro-entry"];
 #else
   return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 #endif

@@ -14,6 +14,7 @@
 		514201552437B4B40078DB4F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 514201532437B4B40078DB4F /* Main.storyboard */; };
 		514201582437B4B40078DB4F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 514201572437B4B40078DB4F /* main.m */; };
 		65A5DFB69C0C963E95D759CC /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 67A8B898CBAF261700E86577 /* PrivacyInfo.xcprivacy */; };
+		7DEC6DE32D1DC7BD008F1595 /* ExpoAppDelegateMacOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DEC6DE22D1DC7A4008F1595 /* ExpoAppDelegateMacOS.swift */; };
 		9F9E389201752BD74FCC7029 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA85DB5AF52932759DFB0114 /* ExpoModulesProvider.swift */; };
 /* End PBXBuildFile section */
 
@@ -30,6 +31,7 @@
 		514201572437B4B40078DB4F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		514201592437B4B40078DB4F /* Fiddle.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Fiddle.entitlements; sourceTree = "<group>"; };
 		67A8B898CBAF261700E86577 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		7DEC6DE22D1DC7A4008F1595 /* ExpoAppDelegateMacOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpoAppDelegateMacOS.swift; sourceTree = "<group>"; };
 		AA85DB5AF52932759DFB0114 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Fiddle-macOS/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		AB8EA4E38EEFE3569E2C8524 /* libPods-Fiddle-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Fiddle-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -82,6 +84,7 @@
 		5142014A2437B4B30078DB4F /* Fiddle-macOS */ = {
 			isa = PBXGroup;
 			children = (
+				7DEC6DE22D1DC7A4008F1595 /* ExpoAppDelegateMacOS.swift */,
 				5142014B2437B4B30078DB4F /* AppDelegate.h */,
 				5142014C2437B4B30078DB4F /* AppDelegate.mm */,
 				514201512437B4B40078DB4F /* Assets.xcassets */,
@@ -372,6 +375,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7DEC6DE32D1DC7BD008F1595 /* ExpoAppDelegateMacOS.swift in Sources */,
 				514201582437B4B40078DB4F /* main.m in Sources */,
 				5142014D2437B4B30078DB4F /* AppDelegate.mm in Sources */,
 				9F9E389201752BD74FCC7029 /* ExpoModulesProvider.swift in Sources */,
@@ -555,10 +559,7 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native-macos";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -617,10 +618,7 @@
 					"\"$(inherited)\"",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native-macos";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
