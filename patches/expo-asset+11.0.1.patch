@@ -1,0 +1,11 @@
+diff --git a/node_modules/expo-asset/build/ExpoAsset.macos.js b/node_modules/expo-asset/build/ExpoAsset.macos.js
+new file mode 100644
+index 0000000..236bb61
+--- /dev/null
++++ b/node_modules/expo-asset/build/ExpoAsset.macos.js
+@@ -0,0 +1,4 @@
++export async function downloadAsync(url, _hash, _type) {
++  return url;
++}
++//# sourceMappingURL=ExpoAsset.web.js.map
+\ No newline at end of file
