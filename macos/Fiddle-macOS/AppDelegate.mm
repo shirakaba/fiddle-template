@@ -2,6 +2,8 @@
 
 #import <React/RCTBundleURLProvider.h>
 
+// iOS: https://github.com/microsoft/react-native-macos/blob/0.76-stable/packages/helloworld/ios/HelloWorld/AppDelegate.mm
+// macOS: https://github.com/microsoft/react-native-macos/blob/0.76-stable/packages/react-native/local-cli/generator-macos/templates/macos/HelloWorld-macOS/AppDelegate.mm
 @implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification
@@ -10,7 +12,7 @@
   // You can add your custom initial props in the dictionary below.
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
-
+  
   return [super applicationDidFinishLaunching:notification];
 }
 
@@ -22,7 +24,7 @@
 - (NSURL *)bundleURL
 {
 #if DEBUG
-  return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@".expo/.virtual-metro-entry"];
+  return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index"];
 #else
   return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 #endif
