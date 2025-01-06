@@ -1,3 +1,4 @@
+// https://github.com/expo/expo/blob/sdk-52/packages/%40expo/config-plugins/src/plugins/withIosBaseMods.ts
 // https://github.com/byCedric/custom-prebuild-example/blob/main/app/plugins/macos/base.js
 const {withMod} = require('expo/config-plugins');
 
