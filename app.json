@@ -1,4 +1,35 @@
 {
   "name": "Fiddle",
-  "displayName": "Fiddle"
+  "displayName": "Fiddle",
+  "expo": {
+    "name": "Fiddle",
+    "slug": "fiddle",
+    "plugins": [
+      "./plugins/android/withoutExpoSplashScreen",
+      ["./plugins/universal/withJsEngine.js", {"engine": "hermes"}],
+      [
+        "./plugins/macos/withWindowSize",
+        {
+          "width": 800,
+          "height": 600
+        }
+      ],
+      [
+        "./plugins/windows/withNuGetSources",
+        {
+          "packageSources": {
+            "Nuget.org": "https://api.nuget.org/v3/index.json"
+          }
+        }
+      ],
+      "./plugins/macos/withMacOS",
+      "./plugins/windows/withWindows"
+    ],
+    "android": {
+      "package": "uk.co.birchlabs.fiddle"
+    },
+    "ios": {
+      "bundleIdentifier": "uk.co.birchlabs.fiddle"
+    }
+  }
 }
