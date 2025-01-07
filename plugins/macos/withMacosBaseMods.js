@@ -9,14 +9,14 @@ const assert = require('node:assert');
 const {
   BaseMods: {withGeneratedBaseMods, provider},
 } = require('@expo/config-plugins');
-const {Entitlements, Paths} = require('@expo/config-plugins/build/ios');
-const {
-  getInfoPlistPathFromPbxproj,
-} = require('@expo/config-plugins/build/ios/utils/getInfoPlistPath');
+const {getNativeTargets} = require('@expo/config-plugins/build/ios/Target');
 const plist = require('@expo/plist');
 const {default: JsonFile} = require('@expo/json-file');
 const {project: xcodeProject} = require('xcode');
-const {getPbxproj} = require('@expo/config-plugins/build/ios/utils/Xcodeproj');
+const Entitlements = require('./Entitlements');
+const {getInfoPlistPathFromPbxproj} = require('./getInfoPlistPath');
+const Paths = require('./Paths');
+const {getPbxproj} = require('./Xcodeproj');
 const {fileExists} = require('../_utils/modules');
 const sortObject = require('../_utils/sortObject');
 const {addWarningMacOS} = require('../_utils/warnings');
@@ -79,9 +79,7 @@ const defaultProviders = {
   // Append a rule to supply AppDelegate data to mods on `mods.macos.appDelegate`
   appDelegate: provider({
     getFilePath({modRequest: {projectRoot}}) {
-      // TODO: Get application AppDelegate file from pbxproj.
-      // FIXME: this is hard-coded to look in the ios directory.
-      return Paths.getAppDelegateFilePath(projectRoot);
+      return Paths.getAppDelegateFilePath(projectRoot, 'macos');
     },
     async read(filePath) {
       return Paths.getFileInfo(filePath);
@@ -121,11 +119,7 @@ const defaultProviders = {
   // Append a rule to supply .xcodeproj data to mods on `mods.macos.xcodeproj`
   xcodeproj: provider({
     getFilePath({modRequest: {projectRoot}}) {
-      // FIXME: The underlying call stack:
-      //   Paths.getAllPBXProjectPaths()
-      //     Paths.getAllXcodeProjectPaths()
-      // ... is hard-coded to search under ios/**/*.xcodeproj
-      return Paths.getPBXProjectPath(projectRoot);
+      return Paths.getPBXProjectPath(projectRoot, 'macos');
     },
     async read(filePath) {
       const project = xcodeProject(filePath);
@@ -142,10 +136,7 @@ const defaultProviders = {
     async getFilePath(config) {
       let project = null;
       try {
-        // FIXME: finds the iOS project rather than the macOS one, because the
-        // underlying Paths().getPBXProjectPath(projectRoot) is hard-coded to
-        // return the iOS path.
-        project = getPbxproj(config.modRequest.projectRoot);
+        project = getPbxproj(config.modRequest.projectRoot, 'macos');
       } catch {
         // noop
       }
@@ -153,7 +144,18 @@ const defaultProviders = {
       // Only check / warn if a project actually exists, this'll provide
       // more accurate warning messages for users in managed projects.
       if (project) {
-        const infoPlistBuildProperty = getInfoPlistPathFromPbxproj(project);
+        const targetName = getMacOSTargetName(project);
+        // FIXME: There's a potential bug in the implementation.
+        // "…/macos/AppName-macOS/Info.plist"
+        // … gets lowercased to:
+        // "…/macos/AppName-macos/Info.plist"
+        // This may be of no consequence on case-insensitive file systems, but
+        // it depends what's downstream of all this.
+        const infoPlistBuildProperty = getInfoPlistPathFromPbxproj(
+          project,
+          'macos',
+          {targetName},
+        );
         if (infoPlistBuildProperty) {
           //: [root]/myapp/macos/MyApp/Info.plist
           const infoPlistPath = path.join(
@@ -230,15 +232,22 @@ const defaultProviders = {
     isIntrospective: true,
     async getFilePath(config) {
       try {
-        // FIXME: this, and various underlying functions it calls, is hard-coded
-        // to search under the 'ios' directory
+        const project = getPbxproj(config.modRequest.projectRoot, 'macos');
+        const targetName = getMacOSTargetName(project);
+
+        // We've forked this function so that it takes a targetName.
         Entitlements.ensureApplicationTargetEntitlementsFileConfigured(
           config.modRequest.projectRoot,
+          'macos',
+          {targetName},
         );
+
         return (
-          // FIXME: this, and various underlying functions it calls, is
-          // hard-coded to search under the 'ios' directory
-          Entitlements.getEntitlementsPath(config.modRequest.projectRoot) ?? ''
+          Entitlements.getEntitlementsPath(
+            config.modRequest.projectRoot,
+            'macos',
+            {targetName},
+          ) ?? ''
         );
       } catch (error) {
         if (config.modRequest.introspect) {
@@ -296,8 +305,7 @@ const defaultProviders = {
   }),
   podfile: provider({
     getFilePath({modRequest: {projectRoot}}) {
-      // FIXME: is hard-coded to look for the iOS path.
-      return Paths.getPodfilePath(projectRoot);
+      return Paths.getPodfilePath(projectRoot, 'macos');
     },
     // @ts-expect-error
     async read(filePath) {
@@ -329,6 +337,25 @@ const defaultProviders = {
     },
   }),
 };
+
+/**
+ * @param {Parameters<typeof getNativeTargets>[0]} project
+ */
+function getMacOSTargetName(project) {
+  // react-native-macos projects begin with "-iOS" and "-macOS" targets.
+  // Unfortunately, the "-iOS" target is the first (and thus the default
+  // one picked up by getInfoPlistPathFromPbxproj). Here, we narrow down
+  // to the target whose name ends with "-macOS" as a best-of-a-bad-job.
+  // In future, it would be nice to find some feature of the target that
+  // definitively indicates an AppKit app to be less fragile to custom
+  // projects.
+
+  /** @type {Array<string>} */
+  const nativeTargetNames = getNativeTargets(project).map(([, {name}]) =>
+    JSON.parse(name),
+  );
+  return nativeTargetNames.find(name => name.endsWith('-macOS'));
+}
 
 function withMacosBaseMods(config, {providers, ...props} = {}) {
   return withGeneratedBaseMods(config, {
